@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ติดตามสถานะ - USCE HELPDESK</title>
+  
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script src="config.js"></script>
+
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between selection:bg-pink-200">
+
+  <div class="relative">
+    
+    <!-- Header ส่วนแบนเนอร์สีชมพู -->
+    <header class="bg-gradient-to-r from-[#ff5a85] via-[#ff658e] to-[#ff4777] text-white pt-10 pb-28 px-4 shadow-sm text-center relative overflow-hidden">
+      <div class="max-w-md mx-auto flex flex-col items-center relative z-10">
+        <a href="index.html" class="absolute top-0 left-0 bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm transition-all flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>หน้าหลัก</span>
+        </a>
+
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-wide mt-2">
+          USCE HELPDESK
+        </h1>
+        <p class="text-xs font-light opacity-95 mt-1">
+          คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ
+        </p>
+      </div>
+    </header>
+
+    <!-- Content การ์ดค้นหาและแสดงผล -->
+    <main class="px-4 -mt-16 mb-12 flex justify-center relative z-10">
+      <div class="bg-white w-full max-w-md rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-pink-200/30 border border-pink-50 space-y-6">
+        
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-gray-800">
+            ติดตามสถานะเรื่องร้องเรียน
+          </h2>
+          <p class="text-xs text-gray-400 mt-1">
+            กรอกรหัสติดตามเรื่องร้องเรียน (Ticket ID) เพื่อตรวจสอบความคืบหน้า
+          </p>
+        </div>
+
+        <!-- ฟอร์มค้นหา Ticket ID -->
+        <form id="searchForm" onsubmit="handleSearch(event)" class="space-y-3">
+          <div class="relative">
+            <input type="text" id="ticketIdInput" required placeholder="เช่น TK-849201" 
+                   class="w-full bg-slate-50 border border-slate-200 focus:border-[#ff5a85] focus:bg-white text-gray-800 text-xs sm:text-sm font-semibold rounded-2xl p-3.5 pl-11 outline-none transition-all uppercase placeholder:normal-case placeholder:font-normal placeholder:text-gray-400">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          </div>
+          
+          <button type="submit" id="searchBtn" 
+                  class="w-full bg-[#ff5a85] hover:bg-[#e04870] text-white font-bold py-3.5 rounded-2xl shadow-md shadow-pink-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer disabled:opacity-70">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>ตรวจสอบสถานะ</span>
+          </button>
+        </form>
+
+        <!-- ผลลัพธ์รายละเอียด Ticket -->
+        <div id="resultArea" class="hidden">
+          <div class="bg-slate-50 rounded-3xl p-5 border border-slate-200/80 space-y-5">
+            
+            <!-- Header Ticket & Badge -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div>
+                <span class="text-[10px] text-gray-400 font-bold uppercase block tracking-wider">รหัสเรื่องร้องเรียน</span>
+                <span id="resTicketId" class="text-base font-extrabold text-[#ff5a85] font-mono"></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="resStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold"></span>
+                <button onclick="copyCurrentTicket()" class="p-1.5 rounded-lg bg-white border border-slate-200 text-gray-500 hover:text-[#ff5a85] transition-colors" title="คัดลอกรหัส">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Stepper Timeline -->
+            <div class="py-2">
+              <div class="flex items-center justify-between relative">
+                <div class="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-0.5 bg-slate-200 -z-0"></div>
+                <div id="stepperLine" class="absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-[#ff5a85] transition-all duration-500 -z-0 w-0"></div>
+
+                <div class="flex flex-col items-center gap-1 text-center relative z-10">
+                  <div class="w-7 h-7 rounded-full bg-[#ff5a85] text-white flex items-center justify-center text-xs font-bold shadow-xs">1</div>
+                  <span class="text-[10px] font-bold text-gray-700">รับเรื่อง</span>
+                </div>
+
+                <div class="flex flex-col items-center gap-1 text-center relative z-10">
+                  <div id="step2" class="w-7 h-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center text-xs font-bold transition-colors">2</div>
+                  <span class="text-[10px] font-bold text-gray-700">กำลังดำเนินการ</span>
+                </div>
+
+                <div class="flex flex-col items-center gap-1 text-center relative z-10">
+                  <div id="step3" class="w-7 h-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center text-xs font-bold transition-colors">3</div>
+                  <span class="text-[10px] font-bold text-gray-700">เสร็จสิ้น</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- รายละเอียด -->
+            <div class="space-y-2.5 text-xs text-gray-600 bg-white p-4 rounded-2xl border border-slate-100">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400 font-medium">วันที่แจ้ง:</span>
+                <span id="resDate" class="text-gray-700 font-semibold"></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400 font-medium">ผู้แจ้ง:</span>
+                <span id="resName" class="text-gray-700 font-semibold"></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400 font-medium">หมวดหมู่:</span>
+                <span id="resCategory" class="text-gray-700 font-semibold bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-100"></span>
+              </div>
+              <div class="pt-2 border-t border-slate-100">
+                <span class="text-gray-400 block font-bold mb-1">รายละเอียดปัญหา:</span>
+                <p id="resDetail" class="text-gray-700 leading-relaxed whitespace-pre-line text-xs font-normal"></p>
+              </div>
+              
+              <!-- รูปภาพแนบ -->
+              <div id="resImageWrapper" class="hidden pt-2 border-t border-slate-100">
+                <span class="text-gray-400 block font-bold mb-1.5">รูปภาพประกอบ:</span>
+                <a id="resImageLink" href="#" target="_blank" class="inline-block group relative">
+                  <img id="resImage" src="" class="max-h-40 rounded-xl border border-slate-200 object-cover shadow-xs group-hover:opacity-90 transition-opacity">
+                </a>
+              </div>
+            </div>
+
+            <!-- ข้อความจากเจ้าหน้าที่ -->
+            <div class="bg-pink-50/70 border border-pink-100 p-4 rounded-2xl space-y-1.5">
+              <span class="text-xs text-[#ff5a85] font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-comment-dots"></i> การตอบกลับและการดำเนินการจากคณะกรรมการ (กนค.):
+              </span>
+              <p id="resReplyText" class="text-xs text-gray-700 leading-relaxed font-normal">
+                เรื่องอยู่ระหว่างการตรวจสอบและประสานงานกับฝ่ายที่เกี่ยวข้อง
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- กล่องข้อความแจ้งเตือน / ไม่พบข้อมูล -->
+        <div id="messageArea" class="hidden text-center py-6 space-y-2 bg-rose-50 border border-rose-100 rounded-2xl p-4">
+          <i id="messageIcon" class="fa-solid fa-circle-exclamation text-2xl text-rose-500"></i>
+          <p id="messageText" class="text-xs font-bold text-rose-700"></p>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pb-6 text-center text-xs text-gray-400">
+    &copy; คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ
+  </footer>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('id');
+      if (ticketId) {
+        document.getElementById('ticketIdInput').value = ticketId.trim();
+        searchTicket(ticketId.trim());
+      }
+    });
+
+    function handleSearch(e) {
+      e.preventDefault();
+      const id = document.getElementById('ticketIdInput').value.trim();
+      if (id) searchTicket(id);
+    }
+
+    async function searchTicket(ticketId) {
+      const searchBtn = document.getElementById('searchBtn');
+      const resultArea = document.getElementById('resultArea');
+      const messageArea = document.getElementById('messageArea');
+
+      resultArea.classList.add('hidden');
+      messageArea.classList.add('hidden');
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังค้นหา...`;
+
+      try {
+        const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getTicket&id=${encodeURIComponent(ticketId)}`);
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data) {
+          renderTicketData(result.data);
+          resultArea.classList.remove('hidden');
+        } else {
+          showMsg(result.message || 'ไม่พบข้อมูลเรื่องร้องเรียนนี้ กรุณาตรวจสอบรหัสอีกครั้ง');
+        }
+      } catch (err) {
+        console.error(err);
+        showMsg('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+      } finally {
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> <span>ตรวจสอบสถานะ</span>`;
+      }
+    }
+
+    function renderTicketData(data) {
+      const ticketId = data.ticketId || data.ID || '-';
+      document.getElementById('resTicketId').innerText = ticketId;
+      document.getElementById('resDate').innerText = data.timestamp || data.Timestamp || data.createdAt || '-';
+      document.getElementById('resName').innerText = data.name || data.ชื่อ_นามสกุล || 'ไม่ระบุชื่อ';
+      document.getElementById('resCategory').innerText = data.category || data.หมวดหมู่ปัญหา || '-';
+      document.getElementById('resDetail').innerText = data.detail || data.รายละเอียด || '-';
+
+      const status = data.status || data.สถานะ || 'รอดำเนินการ';
+      const badge = document.getElementById('resStatusBadge');
+      const line = document.getElementById('stepperLine');
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+
+      badge.innerText = status;
+
+      if (status === 'เสร็จสิ้น' || status === 'แก้ไขแล้ว' || status === 'ดำเนินการเสร็จสิ้น') {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700';
+        line.className = 'absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-[#ff5a85] transition-all duration-500 -z-0 w-[calc(100%-3rem)]';
+        step2.className = 'w-7 h-7 rounded-full bg-[#ff5a85] text-white flex items-center justify-center text-xs font-bold shadow-xs';
+        step3.className = 'w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs';
+      } else if (status === 'กำลังดำเนินการ') {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700';
+        line.className = 'absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-[#ff5a85] transition-all duration-500 -z-0 w-1/2';
+        step2.className = 'w-7 h-7 rounded-full bg-[#ff5a85] text-white flex items-center justify-center text-xs font-bold shadow-xs';
+        step3.className = 'w-7 h-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center text-xs font-bold';
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700';
+        line.className = 'absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-[#ff5a85] transition-all duration-500 -z-0 w-0';
+        step2.className = 'w-7 h-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center text-xs font-bold';
+        step3.className = 'w-7 h-7 rounded-full bg-slate-200 text-gray-500 flex items-center justify-center text-xs font-bold';
+      }
+
+      const imgUrl = data.imageUrl || data.รูปภาพแนบ || '';
+      const imgWrapper = document.getElementById('resImageWrapper');
+      if (imgUrl && imgUrl !== '-' && imgUrl.trim() !== '') {
+        document.getElementById('resImage').src = imgUrl;
+        document.getElementById('resImageLink').href = imgUrl;
+        imgWrapper.classList.remove('hidden');
+      } else {
+        imgWrapper.classList.add('hidden');
+      }
+
+      const reply = data.adminNote || data.reply || data.การตอบกลับจากเจ้าหน้าที่ || '';
+      if (reply && reply.trim() !== '' && reply !== '-') {
+        document.getElementById('resReplyText').innerText = reply;
+      } else {
+        document.getElementById('resReplyText').innerText = 'เรื่องอยู่ระหว่างการตรวจสอบและประสานงานกับฝ่ายที่เกี่ยวข้อง';
+      }
+    }
+
+    function showMsg(text) {
+      const msgArea = document.getElementById('messageArea');
+      document.getElementById('messageText').innerText = text;
+      msgArea.classList.remove('hidden');
+    }
+
+    function copyCurrentTicket() {
+      const text = document.getElementById('resTicketId').innerText;
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => alert('คัดลอก Ticket ID แล้ว!'));
+      }
+    }
+  </script>
+</body>
+</html>

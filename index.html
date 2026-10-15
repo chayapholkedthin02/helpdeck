@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USCE HELPDESK - ระบบแจ้งเรื่องร้องเรียน กนค. ครุศาสตร์ จุฬาฯ</title>
+  <meta name="description" content="ระบบรับแจ้งเรื่องร้องเรียน ติดตามสถานะ และตรวจสอบความโปร่งใส คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ" />
+  <meta property="og:title" content="USCE HELPDESK - ระบบแจ้งเรื่องร้องเรียน กนค. ครุศาสตร์ จุฬาฯ" />
+  <meta property="og:description" content="ระบบรับแจ้งเรื่องร้องเรียน ติดตามสถานะ และตรวจสอบความโปร่งใส คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script src="config.js"></script>
+
+  <style>
+    body {
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between selection:bg-pink-200">
+
+  <div class="relative">
+    
+    <!-- Header ส่วนแบนเนอร์สีชมพู -->
+    <header class="bg-gradient-to-r from-[#ff5a85] via-[#ff658e] to-[#ff4777] text-white pt-6 sm:pt-8 pb-20 sm:pb-24 px-4 sm:px-8 shadow-sm relative overflow-hidden">
+      <!-- Background glow effect -->
+      <div class="absolute -top-12 -right-12 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute bottom-0 -left-12 w-48 h-48 bg-black/5 rounded-full blur-xl pointer-events-none"></div>
+
+      <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
+        
+        <!-- โลโก้ + ชื่อระบบ + สังกัด -->
+        <div class="flex flex-col sm:flex-row items-center text-center sm:text-left gap-3 sm:gap-4">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full p-1 shadow-md border-2 border-white ring-4 ring-white/30 flex items-center justify-center shrink-0 overflow-hidden">
+            <img src="https://i.postimg.cc/hvcQS4LQ/images-(4).jpg" alt="Logo" class="w-full h-full object-cover rounded-full pointer-events-none select-none">
+          </div>
+
+          <div>
+            <h1 id="appTitle" class="text-2xl sm:text-3xl font-black tracking-wide drop-shadow-sm">
+              USCE HELPDESK
+            </h1>
+            <p class="text-xs font-light leading-relaxed opacity-95 mt-0.5">
+              คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ ประจำปีการศึกษา 2569
+            </p>
+          </div>
+        </div>
+
+        <!-- ปุ่มเข้าสู่ระบบเฉพาะแอดมิน / แสดงชื่อผู้ใช้ถ้าเป็น Admin -->
+        <div id="authHeader" class="shrink-0 mt-1 sm:mt-0">
+          <a href="login.html" class="flex items-center gap-1.5 bg-white text-[#ff5a85] hover:bg-pink-50 px-4 py-2 rounded-full shadow-md text-xs font-bold transition-all transform hover:scale-105 cursor-pointer">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>เข้าสู่ระบบเฉพาะแอดมิน</span>
+          </a>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Content ส่วนการ์ดเมนูหลัก 3 เมนู -->
+    <main class="px-4 -mt-12 sm:-mt-14 mb-12 flex justify-center relative z-10">
+      <div class="bg-white w-full max-w-md rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-pink-200/40 border border-pink-50">
+        
+        <h2 class="text-center font-bold text-gray-800 text-lg mb-6">
+          ยินดีต้อนรับนิสิตครุศาสตร์
+        </h2>
+
+        <!-- ปุ่มรายการเมนู 3 ปุ่มหลัก -->
+        <div class="space-y-4">
+          
+          <!-- เมนูที่ 1: แจ้งเรื่องร้องเรียน -->
+          <a href="report.html" class="w-full bg-white hover:bg-pink-50/30 p-4 rounded-2xl border border-slate-100 hover:border-pink-200 shadow-xs hover:shadow-md flex items-center justify-between transition-all duration-200 group cursor-pointer block">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-[#fff0f4] text-[#ff5a85] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <i class="fa-regular fa-pen-to-square text-lg"></i>
+              </div>
+              <div class="text-left">
+                <h3 class="font-bold text-gray-800 text-sm sm:text-base group-hover:text-[#ff5a85] transition-colors leading-snug">แจ้งเรื่องร้องเรียน</h3>
+                <p class="text-xs text-gray-400 font-normal mt-0.5">ส่งข้อมูลปัญหาถึงคณะกรรมการ</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-300 group-hover:text-[#ff5a85] group-hover:translate-x-0.5 text-xs transition-all"></i>
+          </a>
+
+          <!-- เมนูที่ 2: ติดตามสถานะเรื่องร้องเรียน -->
+          <a href="tracking.html" class="w-full bg-white hover:bg-pink-50/30 p-4 rounded-2xl border border-slate-100 hover:border-pink-200 shadow-xs hover:shadow-md flex items-center justify-between transition-all duration-200 group cursor-pointer block">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-[#fff0f4] text-[#ff5a85] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+              </div>
+              <div class="text-left">
+                <h3 class="font-bold text-gray-800 text-sm sm:text-base group-hover:text-[#ff5a85] transition-colors leading-snug">ติดตามสถานะเรื่องร้องเรียน</h3>
+                <p class="text-xs text-gray-400 font-normal mt-0.5">ตรวจสอบความคืบหน้าด้วย Ticket ID</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-300 group-hover:text-[#ff5a85] group-hover:translate-x-0.5 text-xs transition-all"></i>
+          </a>
+
+          <!-- เมนูที่ 3: ภาพรวมความโปร่งใส -->
+          <a href="dashboard.html" class="w-full bg-white hover:bg-pink-50/30 p-4 rounded-2xl border border-slate-100 hover:border-pink-200 shadow-xs hover:shadow-md flex items-center justify-between transition-all duration-200 group cursor-pointer block">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-[#fff0f4] text-[#ff5a85] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-arrow-trend-up text-lg"></i>
+              </div>
+              <div class="text-left">
+                <h3 class="font-bold text-gray-800 text-sm sm:text-base group-hover:text-[#ff5a85] transition-colors leading-snug">ภาพรวมความโปร่งใส</h3>
+                <p class="text-xs text-gray-400 font-normal mt-0.5">ดูสถิติและเคสทั้งหมดของ กนค.</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-300 group-hover:text-[#ff5a85] group-hover:translate-x-0.5 text-xs transition-all"></i>
+          </a>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pb-6 text-center">
+    <div class="flex items-center justify-center gap-5 text-gray-700 text-2xl mb-3">
+      <a href="https://www.facebook.com/USCE.CU/?locale=th_TH" target="_blank" rel="noopener noreferrer" class="hover:text-[#ff5a85] transition-colors" title="Facebook">
+        <i class="fa-brands fa-facebook"></i>
+      </a>
+      <a href="https://www.instagram.com/usce.cu?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" class="hover:text-[#ff5a85] transition-colors" title="Instagram">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+    </div>
+    <p class="text-xs text-gray-400">
+      &copy; คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ ประจำปีการศึกษา 2569
+    </p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuthStatus();
+    });
+
+    function checkAuthStatus() {
+      const authHeader = document.getElementById('authHeader');
+      const userJson = localStorage.getItem('currentUser');
+      
+      if (userJson && userJson !== 'null' && userJson !== 'undefined') {
+        try {
+          const user = JSON.parse(userJson);
+          if (user.role === 'admin') {
+            authHeader.innerHTML = `
+              <div class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-md text-xs font-bold text-gray-800">
+                <i class="fa-solid fa-shield-halved text-[#ff5a85]"></i>
+                <span class="max-w-[100px] truncate">${user.name || 'Admin'}</span>
+                <a href="admin-dashboard.html" class="bg-pink-100 text-[#ff5a85] text-[10px] px-2 py-0.5 rounded-full hover:bg-pink-200 transition-colors">
+                  แผงควบคุม
+                </a>
+                <button onclick="logoutAdmin()" class="text-red-500 hover:text-red-700 ml-1 cursor-pointer" title="ออกจากระบบ">
+                  <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+              </div>
+            `;
+            return;
+          }
+        } catch (e) {
+          localStorage.removeItem('currentUser');
+        }
+      }
+
+      authHeader.innerHTML = `
+        <a href="login.html" class="flex items-center gap-1.5 bg-white text-[#ff5a85] hover:bg-pink-50 px-4 py-2 rounded-full shadow-md text-xs font-bold transition-all transform hover:scale-105 cursor-pointer">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>เข้าสู่ระบบเฉพาะแอดมิน</span>
+        </a>
+      `;
+    }
+
+    function logoutAdmin() {
+      if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
+        localStorage.removeItem('currentUser');
+        window.location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
