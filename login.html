@@ -133,7 +133,7 @@
           localStorage.setItem('currentUser', JSON.stringify(result.user));
           window.location.href = 'admin-dashboard.html';
         } else {
-          // Check fallback admin credentials
+          // ตรวจสอบกรณีฉุกเฉิน
           if (email.toLowerCase() === 'admin@chula.ac.th' && password === 'adminpassword123') {
             const adminUser = { email: 'admin@chula.ac.th', name: 'ผู้ดูแลระบบ (Admin)', role: 'admin' };
             localStorage.setItem('currentUser', JSON.stringify(adminUser));
