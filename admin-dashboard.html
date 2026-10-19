@@ -83,7 +83,7 @@
 
         <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-3">
           <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl shrink-0">
-            <i class="fa-solid fa-spinner"></i>
+            <i class="fa-solid fa-bars-progress"></i>
           </div>
           <div>
             <p class="text-xs text-gray-400 font-medium">กำลังดำเนินการ</p>
@@ -102,96 +102,99 @@
         </div>
       </div>
 
-      <!-- 2. กล่องค้นหา / ตัวกรอง & รายการเรื่องร้องเรียน -->
-      <div class="bg-white rounded-[2.5rem] p-5 sm:p-7 shadow-xl shadow-pink-200/30 border border-pink-50 space-y-5">
-        
-        <div class="flex flex-col sm:flex-row gap-3 justify-between items-center">
-          <div class="relative w-full sm:w-72">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-            <input type="text" id="searchInput" onkeyup="filterTickets()" placeholder="ค้นหา Ticket ID, เรื่อง, หรือผู้แจ้ง..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:border-[#ff5a85] focus:bg-white">
-          </div>
-
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <select id="statusFilter" onchange="filterTickets()" class="w-full sm:w-auto px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#ff5a85]">
-              <option value="ALL">สถานะทั้งหมด</option>
-              <option value="รอดำเนินการ">รอดำเนินการ</option>
-              <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-              <option value="เสร็จสิ้น">เสร็จสิ้น</option>
-              <option value="ปฏิเสธ">ปฏิเสธเรื่อง</option>
-            </select>
-            <button onclick="fetchAdminTickets()" class="bg-pink-50 text-[#ff5a85] hover:bg-pink-100 p-2.5 rounded-2xl transition-all shrink-0 cursor-pointer" title="รีเฟรชข้อมูล">
-              <i class="fa-solid fa-rotate-right"></i>
-            </button>
-          </div>
+      <!-- 2. แถบค้นหา และ กรองสถานะ -->
+      <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div class="relative w-full md:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+          <input type="text" id="searchInput" oninput="filterTickets()" placeholder="ค้นหารหัส, ชื่อผู้แจ้ง, รายละเอียด..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs focus:outline-none focus:border-[#ff5a85] focus:bg-white transition-all">
         </div>
 
-        <!-- ตารางข้อมูล เคสทั้งหมด -->
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+          <select id="statusFilter" onchange="filterTickets()" class="bg-slate-50 border border-slate-200 text-gray-700 text-xs rounded-2xl px-3 py-2.5 focus:outline-none focus:border-[#ff5a85] font-semibold">
+            <option value="ALL">สถานะทั้งหมด</option>
+            <option value="รอดำเนินการ">รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+            <option value="ปฏิเสธ">ปฏิเสธ</option>
+          </select>
+
+          <button onclick="fetchAdminTickets()" class="bg-pink-50 hover:bg-pink-100 text-[#ff5a85] p-2.5 rounded-2xl transition-all cursor-pointer" title="รีเฟรชข้อมูล">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. ตารางรายการร้องเรียน -->
+      <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-[#ff5a85]"></i>
+            <span>จัดการเรื่องร้องเรียนทั้งหมด</span>
+          </h2>
+          <span class="text-xs text-gray-400 font-light">คลิกที่ปุ่มในคอลัมน์ "การเผยแพร่" เพื่ออนุมัติ/ซ่อนจาก Dashboard ได้ทันที</span>
+        </div>
+
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+          <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="border-b border-slate-100 text-gray-400 text-[11px] uppercase tracking-wider font-semibold">
+              <tr class="bg-slate-50 text-gray-500 font-bold border-b border-slate-100 uppercase tracking-wider text-[11px]">
                 <th class="py-3 px-3">Ticket ID</th>
                 <th class="py-3 px-3">วันที่แจ้ง</th>
-                <th class="py-3 px-3">หัวข้อ / รายละเอียด</th>
+                <th class="py-3 px-3">หัวข้อ/รายละเอียด</th>
                 <th class="py-3 px-3">ผู้แจ้ง</th>
                 <th class="py-3 px-3">หมวดหมู่</th>
-                <th class="py-3 px-3 text-center">รูปภาพ</th>
+                <th class="py-3 px-3 text-center">รูปแนบ</th>
                 <th class="py-3 px-3 text-center">สถานะ</th>
-                <th class="py-3 px-3 text-center">จัดการ</th>
+                <th class="py-3 px-3 text-center">การเผยแพร่ (Dashboard)</th>
+                <th class="py-3 px-3 text-center">การกระทำ</th>
               </tr>
             </thead>
-            <tbody id="ticketTableBody" class="text-xs divide-y divide-slate-50">
+            <tbody id="ticketTableBody" class="divide-y divide-slate-100 text-gray-700">
               <tr>
-                <td colspan="8" class="py-12 text-center text-gray-400">
+                <td colspan="9" class="py-12 text-center text-gray-400">
                   <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-[#ff5a85]"></i>
-                  <p>กำลังโหลดข้อมูล...</p>
+                  <p>กำลังโหลดรายการข้อมูล...</p>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
       </div>
+
     </main>
   </div>
 
-  <!-- Footer -->
-  <footer class="pb-6 text-center text-xs text-gray-400">
-    &copy; คณะกรรมการนิสิตปริญญาบัณฑิตคณะครุศาสตร์ จุฬาฯ
-  </footer>
-
-  <!-- Modal ดูรายละเอียด & อัปเดตสถานะ Ticket -->
+  <!-- Modal ดูรายละเอียด และ จัดการสถานะ -->
   <div id="ticketModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2rem] p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-[2.5rem] p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto border border-pink-50">
       
-      <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+      <div class="flex items-center justify-between border-b pb-3">
         <div>
-          <span id="modalTicketId" class="text-xs font-bold text-[#ff5a85] bg-pink-50 px-2.5 py-1 rounded-full font-mono">TK-XXXXX</span>
-          <h3 id="modalSubject" class="text-base font-bold text-gray-800 mt-2">หัวข้อเรื่องร้องเรียน</h3>
+          <span id="modalTicketId" class="text-xs font-mono font-bold text-[#ff5a85] bg-pink-50 px-2 py-0.5 rounded-lg"></span>
+          <h3 id="modalSubject" class="font-bold text-gray-800 text-sm mt-1"></h3>
         </div>
         <button onclick="closeTicketModal()" class="text-gray-400 hover:text-gray-600 p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <!-- ข้อมูลผู้แจ้งและรายละเอียด -->
-      <div class="space-y-3 text-xs bg-slate-50 p-4 rounded-2xl">
-        <div class="grid grid-cols-2 gap-2 text-gray-600">
-          <p><strong>ผู้แจ้ง:</strong> <span id="modalReporter">-</span></p>
-          <p><strong>หมวดหมู่:</strong> <span id="modalCategory">-</span></p>
-          <p><strong>วันที่:</strong> <span id="modalDate">-</span></p>
-          <p><strong>สถานะปัจจุบัน:</strong> <span id="modalCurrentStatus" class="font-bold text-[#ff5a85]">-</span></p>
-        </div>
-        <hr class="border-slate-200">
-        <div>
-          <strong class="text-gray-700 block mb-1">รายละเอียดปัญหา:</strong>
-          <p id="modalDetail" class="text-gray-600 whitespace-pre-line leading-relaxed">...</p>
+      <div class="space-y-2.5 text-xs">
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl">
+          <div><span class="text-gray-400 font-medium">ผู้แจ้ง:</span> <span id="modalReporter" class="font-bold text-gray-700"></span></div>
+          <div><span class="text-gray-400 font-medium">หมวดหมู่:</span> <span id="modalCategory" class="font-bold text-gray-700"></span></div>
+          <div><span class="text-gray-400 font-medium">วันที่แจ้ง:</span> <span id="modalDate" class="text-gray-600"></span></div>
+          <div><span class="text-gray-400 font-medium">สถานะปัจจุบัน:</span> <span id="modalCurrentStatus" class="font-bold text-[#ff5a85]"></span></div>
         </div>
 
-        <div id="modalImageSection" class="hidden border-t border-slate-200 pt-3">
-          <strong class="text-gray-700 block mb-2">รูปภาพประกอบ:</strong>
-          <a id="modalImageUrl" href="#" target="_blank" class="inline-block relative group">
-            <img id="modalImg" src="" alt="รูปภาพประกอบ" class="max-h-52 rounded-xl border border-slate-200 object-cover shadow-xs group-hover:opacity-90 transition-all">
+        <div class="bg-slate-50 p-3 rounded-2xl">
+          <p class="text-gray-400 font-medium mb-1">รายละเอียดเรื่องร้องเรียน:</p>
+          <p id="modalDetail" class="text-gray-700 whitespace-pre-line leading-relaxed"></p>
+        </div>
+
+        <div id="modalImageSection" class="hidden">
+          <p class="text-gray-400 font-medium mb-1">รูปภาพหลักฐาน:</p>
+          <a id="modalImageUrl" href="#" target="_blank" class="block rounded-2xl overflow-hidden border border-slate-200 max-h-48">
+            <img id="modalImg" src="" alt="Proof" class="w-full h-full object-cover">
           </a>
         </div>
       </div>
@@ -211,6 +214,23 @@
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">บันทึก/คำตอบจาก Admin (ให้ผู้แจ้งเห็น)</label>
           <textarea id="updateAdminNote" rows="3" placeholder="ระบุความคืบหน้า หรือคำชี้แจง..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-[#ff5a85]"></textarea>
+        </div>
+
+        <!-- ตัวเลือกอนุมัติแสดงผลสาธารณะ (dashboard.html) -->
+        <div class="bg-pink-50/60 p-3.5 rounded-2xl border border-pink-100 flex items-center justify-between">
+          <div>
+            <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-bullhorn text-[#ff5a85]"></i>
+              <span>อนุมัติให้แสดงในหน้าความโปร่งใส (dashboard.html)</span>
+            </label>
+            <p class="text-[11px] text-gray-500 mt-0.5">
+              เปิดตัวเลือกนี้เพื่อให้เรื่องนี้แสดงในหน้าแดชบอร์ดสาธารณะให้นิสิตทุกคนดูได้
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+            <input type="checkbox" id="updateIsPublicCheck" class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff5a85]"></div>
+          </label>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -276,11 +296,24 @@
       }
     }
 
+    function getApprovedTicketsSet() {
+      try {
+        const list = JSON.parse(localStorage.getItem('usce_approved_tickets') || '[]');
+        return new Set(list);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    function saveApprovedTicketsSet(set) {
+      localStorage.setItem('usce_approved_tickets', JSON.stringify(Array.from(set)));
+    }
+
     async function fetchAdminTickets() {
       const tbody = document.getElementById('ticketTableBody');
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="py-12 text-center text-gray-400">
+          <td colspan="9" class="py-12 text-center text-gray-400">
             <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-[#ff5a85]"></i>
             <p>กำลังโหลดรายการข้อมูล...</p>
           </td>
@@ -295,15 +328,27 @@
         const result = await response.json();
 
         if (result.status === 'success') {
-          rawTicketsData = result.data || [];
+          rawTicketsData = result.data || result.tickets || [];
+          const approvedSet = getApprovedTicketsSet();
+          rawTicketsData.forEach(t => {
+            const tid = t.ticketId || t.id || t.ID || '';
+            t.ticketId = tid;
+            const isApprovedInBackend = (t.isPublic === true || t.isPublic === 'YES' || t.isPublic === 'อนุมัติ' || t.isPublic === 'แสดง');
+            if (isApprovedInBackend) {
+              approvedSet.add(tid);
+            }
+            t.isPublic = approvedSet.has(tid);
+          });
+          saveApprovedTicketsSet(approvedSet);
+
           updateStats(rawTicketsData);
           renderTicketTable(rawTicketsData);
         } else {
-          tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-rose-500 font-semibold">${result.message || 'ไม่สามารถโหลดข้อมูลได้'}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-rose-500 font-semibold">${result.message || 'ไม่สามารถโหลดข้อมูลได้'}</td></tr>`;
         }
       } catch (error) {
         console.error('Fetch Admin Tickets Error:', error);
-        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-rose-500 font-semibold">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-rose-500 font-semibold">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</td></tr>`;
       }
     }
 
@@ -317,7 +362,7 @@
     function renderTicketTable(tickets) {
       const tbody = document.getElementById('ticketTableBody');
       if (!tickets || tickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-400">ไม่พบรายการข้อมูลเรื่องร้องเรียน</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="py-12 text-center text-gray-400">ไม่พบรายการข้อมูลเรื่องร้องเรียน</td></tr>`;
         return;
       }
 
@@ -326,7 +371,7 @@
         if (t.status === 'เสร็จสิ้น' || t.status === 'แก้ไขแล้ว' || t.status === 'ดำเนินการเสร็จสิ้น') {
           statusBadge = `<span class="bg-emerald-50 text-emerald-600 font-bold px-2.5 py-1 rounded-full text-[11px]"><i class="fa-solid fa-circle-check"></i> เสร็จสิ้น</span>`;
         } else if (t.status === 'กำลังดำเนินการ') {
-          statusBadge = `<span class="bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-full text-[11px]"><i class="fa-solid fa-spinner fa-spin"></i> กำลังดำเนินการ</span>`;
+          statusBadge = `<span class="bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-full text-[11px]"><i class="fa-solid fa-bars-progress"></i> กำลังดำเนินการ</span>`;
         } else if (t.status === 'ปฏิเสธ') {
           statusBadge = `<span class="bg-rose-50 text-rose-600 font-bold px-2.5 py-1 rounded-full text-[11px]"><i class="fa-solid fa-circle-xmark"></i> ปฏิเสธ</span>`;
         } else {
@@ -340,6 +385,16 @@
              </a>`
           : `<span class="text-gray-300">-</span>`;
 
+        // ปุ่มแสดงสถานะและอนุมัติให้แสดงสาธารณะ
+        const isPublic = !!t.isPublic;
+        const publicBtn = isPublic
+          ? `<button onclick="togglePublic('${t.ticketId}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 font-bold px-3 py-1.5 rounded-full text-[11px] inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-xs" title="เรื่องนี้กำลังแสดงในหน้า dashboard.html (คลิกเพื่อยกเลิก/ซ่อน)">
+               <i class="fa-solid fa-circle-check text-emerald-500"></i> อนุมัติแล้ว (สาธารณะ)
+             </button>`
+          : `<button onclick="togglePublic('${t.ticketId}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 font-bold px-3 py-1.5 rounded-full text-[11px] inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-xs" title="เรื่องนี้ยังไม่แสดงในหน้า dashboard.html (คลิกเพื่ออนุมัติให้เผยแพร่)">
+               <i class="fa-solid fa-lock text-amber-500"></i> รออนุมัติ (คลิกเพื่อแสดง)
+             </button>`;
+
         return `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="py-3.5 px-3 font-bold text-[#ff5a85] font-mono">${t.ticketId || '-'}</td>
@@ -349,6 +404,7 @@
             <td class="py-3.5 px-3 text-gray-500">${t.category || '-'}</td>
             <td class="py-3.5 px-3 text-center">${imageBtn}</td>
             <td class="py-3.5 px-3 text-center whitespace-nowrap">${statusBadge}</td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">${publicBtn}</td>
             <td class="py-3.5 px-3 text-center whitespace-nowrap">
               <div class="flex items-center justify-center gap-1.5">
                 <button onclick="openTicketModal('${t.ticketId}')" class="bg-pink-50 hover:bg-[#ff5a85] hover:text-white text-[#ff5a85] font-semibold px-2.5 py-1.5 rounded-xl transition-all cursor-pointer" title="จัดการ/แก้ไข">
@@ -362,6 +418,45 @@
           </tr>
         `;
       }).join('');
+    }
+
+    async function togglePublic(ticketId) {
+      const cleanId = String(ticketId || '').trim();
+      const ticket = rawTicketsData.find(t => String(t.ticketId || t.id || '').trim().toUpperCase() === cleanId.toUpperCase());
+      if (!ticket) return;
+
+      const newIsPublic = !ticket.isPublic;
+      ticket.isPublic = newIsPublic;
+
+      const approvedSet = getApprovedTicketsSet();
+      if (newIsPublic) {
+        approvedSet.add(cleanId);
+        approvedSet.add(cleanId.toUpperCase());
+      } else {
+        approvedSet.delete(cleanId);
+        approvedSet.delete(cleanId.toUpperCase());
+        approvedSet.delete(cleanId.toLowerCase());
+      }
+      saveApprovedTicketsSet(approvedSet);
+
+      renderTicketTable(rawTicketsData);
+
+      try {
+        await fetch(CONFIG.SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'updateTicketStatus',
+            ticketId: cleanId,
+            status: ticket.status || 'รอดำเนินการ',
+            adminNote: ticket.adminNote || '',
+            isPublic: newIsPublic ? 'YES' : 'NO',
+            isPublicBool: newIsPublic
+          })
+        });
+      } catch (err) {
+        console.error('Update isPublic error:', err);
+      }
     }
 
     function filterTickets() {
@@ -407,6 +502,7 @@
 
       document.getElementById('updateStatusSelect').value = ticket.status || 'รอดำเนินการ';
       document.getElementById('updateAdminNote').value = ticket.adminNote || '';
+      document.getElementById('updateIsPublicCheck').checked = !!ticket.isPublic;
       document.getElementById('ticketModal').classList.remove('hidden');
     }
 
@@ -422,6 +518,7 @@
       const saveBtn = document.getElementById('saveStatusBtn');
       const newStatus = document.getElementById('updateStatusSelect').value;
       const adminNote = document.getElementById('updateAdminNote').value;
+      const isPublicVal = document.getElementById('updateIsPublicCheck').checked;
 
       saveBtn.disabled = true;
       saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...`;
@@ -434,12 +531,33 @@
             action: 'updateTicketStatus',
             ticketId: currentSelectedTicketId,
             status: newStatus,
-            adminNote: adminNote
+            adminNote: adminNote,
+            isPublic: isPublicVal ? 'YES' : 'NO',
+            isPublicBool: isPublicVal
           })
         });
         const result = await response.json();
 
         if (result.status === 'success') {
+          const cleanId = String(currentSelectedTicketId).trim();
+          const ticket = rawTicketsData.find(t => String(t.ticketId || t.id || '').trim().toUpperCase() === cleanId.toUpperCase());
+          if (ticket) {
+            ticket.status = newStatus;
+            ticket.adminNote = adminNote;
+            ticket.isPublic = isPublicVal;
+          }
+
+          const approvedSet = getApprovedTicketsSet();
+          if (isPublicVal) {
+            approvedSet.add(cleanId);
+            approvedSet.add(cleanId.toUpperCase());
+          } else {
+            approvedSet.delete(cleanId);
+            approvedSet.delete(cleanId.toUpperCase());
+            approvedSet.delete(cleanId.toLowerCase());
+          }
+          saveApprovedTicketsSet(approvedSet);
+
           closeTicketModal();
           alert('บันทึกการอัปเดตเรียบร้อยแล้ว');
           fetchAdminTickets();
