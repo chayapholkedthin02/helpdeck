@@ -85,14 +85,14 @@
           </div>
         </div>
 
-        <!-- กำลังดำเนินการ -->
+        <!-- กำลังดำเนินการ (ไอคอนคงที่ ไม่หมุน) -->
         <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center justify-between">
           <div>
             <p class="text-xs text-blue-600 font-medium">กำลังดำเนินการ</p>
             <h3 id="statInProgress" class="text-2xl sm:text-3xl font-black text-blue-500 mt-1">0</h3>
           </div>
           <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-spinner animate-spin"></i>
+            <i class="fa-solid fa-bars-progress"></i>
           </div>
         </div>
 
@@ -220,26 +220,93 @@
       fetchPublicTickets();
     });
 
+    function getApprovedTicketsSet() {
+      try {
+        const list = JSON.parse(localStorage.getItem('usce_approved_tickets') || '[]');
+        return new Set(list);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
     async function fetchPublicTickets() {
       const container = document.getElementById('ticketContainer');
+      const approvedSet = getApprovedTicketsSet();
+      let rawList = [];
       
       try {
-        const response = await fetch(CONFIG.SCRIPT_URL, {
+        // 1. ลองดึงข้อมูลจาก Google Apps Script ด้วย getAdminTickets ซึ่งเชื่อมโยงข้อมูลจาก Sheet จริง
+        let response = await fetch(CONFIG.SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'getPublicTickets' })
+          body: JSON.stringify({ action: 'getAdminTickets' })
         });
-        const result = await response.json();
+        let result = await response.json();
 
-        if (result.status === 'success' && Array.isArray(result.tickets)) {
-          allTickets = result.tickets;
+        if (result && result.status === 'success' && (result.data || result.tickets)) {
+          rawList = result.data || result.tickets || [];
         } else {
-          allTickets = [];
+          // หากไม่ได้ ให้ลอง getPublicTickets สำรอง
+          response = await fetch(CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'getPublicTickets' })
+          });
+          result = await response.json();
+          if (result && result.status === 'success') {
+            rawList = result.tickets || result.data || [];
+          }
         }
       } catch (err) {
-        console.warn('ดึงข้อมูลจาก Script ไม่สำเร็จ:', err);
-        allTickets = [];
+        console.warn('ดึงข้อมูลผ่าน API ไม่สำเร็จ:', err);
       }
+
+      // ดึงข้อมูลสำรองจาก local storage เผื่อโหมดออฟไลน์
+      if (!rawList || rawList.length === 0) {
+        try {
+          const localSaved = JSON.parse(localStorage.getItem('usce_local_tickets') || '[]');
+          if (Array.isArray(localSaved) && localSaved.length > 0) {
+            rawList = localSaved;
+          }
+        } catch (e) {}
+      }
+
+      // 🛡️ กรองเฉพาะเรื่องที่ได้รับอนุมัติ (ทั้งจาก Sheet หลังบ้าน หรือ จากที่แอดมินกดในเบราว์เซอร์)
+      allTickets = (rawList || [])
+        .filter(t => {
+          const tid = String(t.ticketId || t.id || t.ID || '').trim();
+          const tidUpper = tid.toUpperCase();
+
+          const isPublicVal = t.isPublic;
+          const isApprovedInBackend = 
+            isPublicVal === true ||
+            isPublicVal === 1 ||
+            String(isPublicVal).toUpperCase() === 'YES' ||
+            String(isPublicVal).toUpperCase() === 'TRUE' ||
+            String(isPublicVal) === '1' ||
+            String(isPublicVal).includes('อนุมัติ') ||
+            String(isPublicVal).includes('แสดง') ||
+            String(isPublicVal).includes('เผยแพร่');
+
+          const isApprovedInLocal = 
+            approvedSet.has(tid) || 
+            approvedSet.has(tidUpper) || 
+            approvedSet.has(tid.toLowerCase());
+
+          return isApprovedInBackend || isApprovedInLocal;
+        })
+        .map(t => {
+          const tid = String(t.ticketId || t.id || t.ID || '').trim();
+          return {
+            id: tid,
+            category: t.category || 'ทั่วไป',
+            date: t.date || t.createdAt || t.timestamp || '-',
+            topic: t.topic || t.subject || `${t.category || 'เรื่องร้องเรียน'} (${tid})`,
+            detail: t.detail || '',
+            status: t.status || 'รอดำเนินการ',
+            action: t.action || t.adminNote || 'ยังไม่มีข้อมูลการดำเนินการ'
+          };
+        });
 
       updateStats(allTickets);
       renderTickets(allTickets);
@@ -264,8 +331,8 @@
       if (tickets.length === 0) {
         container.innerHTML = `
           <div class="p-12 text-center text-gray-400 space-y-2">
-            <i class="fa-solid fa-folder-open text-3xl"></i>
-            <p class="text-xs">ไม่พบข้อมูลเคสเรื่องร้องเรียน</p>
+            <i class="fa-solid fa-shield-halved text-3xl text-pink-300"></i>
+            <p class="text-sm font-bold text-gray-700">ยังไม่มีเรื่องร้องเรียนที่ได้รับอนุมัติให้แสดงต่อสาธารณะ</p>
           </div>
         `;
         return;
@@ -276,7 +343,7 @@
         if (t.status === 'ดำเนินการเสร็จสิ้น' || t.status === 'เสร็จสิ้น' || t.status === 'แก้ไขแล้ว') {
           statusBadge = `<span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> เสร็จสิ้น</span>`;
         } else if (t.status === 'กำลังดำเนินการ') {
-          statusBadge = `<span class="bg-blue-50 text-blue-600 border border-blue-200 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-spinner animate-spin"></i> กำลังทำ</span>`;
+          statusBadge = `<span class="bg-blue-50 text-blue-600 border border-blue-200 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-bars-progress"></i> กำลังดำเนินการ</span>`;
         } else {
           statusBadge = `<span class="bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1"><i class="fa-solid fa-clock"></i> รอดำเนินการ</span>`;
         }
